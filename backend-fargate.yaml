@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  istory
+  namespace: kube-node-lease
+  labels:
+    app:  ub-fargate-profile
+spec:
+  selector:
+    matchLabels:
+      app: ub-fargate-profile
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app:  ub-fargate-profile
+    spec:
+      containers:
+        - name:  istory
+          image:  pinetree0308/istory
+          envFrom:
+            - configMapRef:
+                name: ub-app-config
+          env:
+            - name: spring.datasource.password
+              valueFrom:
+                secretKeyRef:
+                  name: ub-db-secret
+                  key: MYSQL_PASSWORD
+            - name: spring.datasource.username
+              valueFrom:
+                secretKeyRef:
+                  name: ub-db-secret
+                  key: MYSQL_USER
+          resources:
+            requests:
+              cpu: 300m
+              memory: 500Mi
+            limits:
+              cpu: 400m
+              memory: 600Mi
+          ports:
+            - containerPort: 8080
+              name:  istory
